@@ -17,50 +17,54 @@ KwaZulu-Natal, South Africa
 
 ## The site
 
-A single-page, cinematic rebuild of the Dual Nature website. Same content, same photography, same brand — rebuilt on the NVTRA design system.
+A cinematic rebuild of the Dual Nature website — same content, same photography, same brand — on the NVTRA design system, now as a Next.js app.
 
-![Flagship install](assets/img/flagship-logistics-rooftop.jpg)
+![Flagship install](public/img/flagship-logistics-rooftop.jpg)
 
-| Section | What it does |
+| Page / section | What it does |
 |---|---|
-| **Hero** | A live WebGL field of light that moves as a **wave**, then collapses into the logo's three **particles** as you scroll. |
-| **Philosophy** | The quote lights up word by word as you read. Animated counters: 20+ systems, 120 kW+, 100% CoC. |
-| **Energy & Infrastructure** | Six services on a pinned horizontal track (desktop) / snap-swipe carousel (mobile). |
-| **Solar ROI** | Interactive savings calculator — bill, offset and property type drive a live 25-year payback chart. |
-| **Our Work** | Flagship 3-phase install, residential array and a swipeable gallery with a full-screen lightbox. |
-| **Process** | Load audit → Engineering → Installation → Testing & CoC → Maintenance. |
-| **Precision Products** | Tools, automotive aero and the 360° spin booth, plus the materials we print. |
-| **Contact** | Quote builder that drafts an email — no backend, nothing stored. |
+| **Home · Hero** | A live WebGL field of light that moves as a **wave**, then collapses into the logo's three **particles** as you scroll. |
+| **Home · Solar ROI** | Savings calculator driving a glowing **Peak Chart** — bill, offset and property type reshape the 25-year net position; switch horizon (10 / 15 / 25 yrs) from the chart; drag to read any year. |
+| **Home · Work, Process, Products** | Flagship install specs, swipeable gallery + lightbox, install lifecycle, precision manufacturing. |
+| **Home · Contact** | Quote form posting to `/api/quote` (validated server-side), with an email-app fallback. |
+| **/about** | A 3D **perspective tunnel** of real installs you fly through by scrolling, then the story: the ledger, why Dual Nature wins, the flagship, who it's built for. |
 
 ### Built for phones first
-- Phone layouts are designed separately, not shrunk — no scroll-jacking on touch devices
-- Native swipe carousels with snap points, swipe-to-change in the lightbox and process card
-- Floating **Call · Get a quote · Email** dock within thumb reach, hidden near the form
-- 44 px+ tap targets everywhere, 16 px form inputs (no iOS zoom), safe-area aware
-- Lighter 3D scene on mobile, paused when off-screen; respects *reduce motion*
-- Light / dark theme, keyboard accessible, no horizontal overflow
+- Phone layouts designed separately — no scroll-jacking on touch; the About tunnel runs on native scroll
+- Snap-swipe carousels, swipe in the lightbox and process card, touch-drag readout on the chart
+- Floating **Call · Get a quote · Email** dock in thumb reach, hidden near the form
+- 44 px+ tap targets, 16 px inputs (no iOS zoom), safe-area aware, no horizontal overflow
+- Lighter 3D on mobile, paused off-screen; respects *reduce motion*; light / dark theme
 
 ## Stack
-Static HTML, CSS and vanilla JS. [three.js r128](https://threejs.org) from cdnjs for the hero. No build step.
+Next.js 16 (App Router) · TypeScript · Tailwind CSS v4 · shadcn project structure (`components/ui`, `lib/utils.ts`, `components.json`) · framer-motion · three.js
 
 ```
-index.html
-assets/
-  css/style.css
-  js/main.js      # interactions, calculator, lightbox, scroll engine
-  js/scene.js     # WebGL wave → particle hero
-  img/            # original Dual Nature photography + logo
-vercel.json
+app/
+  page.tsx            # home
+  about/page.tsx      # about + tunnel hero
+  api/quote/route.ts  # quote endpoint
+  globals.css
+components/
+  ui/peak-chart.tsx              # Peak Chart (Louis Studios)
+  ui/perspective-tunnel-hero.tsx # tunnel hero (scroll-driven)
+  solar-calculator.tsx · quote-form.tsx · hero-scene.tsx · site-chrome.tsx · site-effects.tsx
+lib/  hero-scene.ts · site.ts · utils.ts
+public/img/           # original Dual Nature photography + logo
 ```
 
 ## Run locally
 ```bash
-python3 -m http.server 4173
+npm install
+npm run dev
 ```
 Open http://localhost:4173.
 
+## Quote emails (optional)
+Copy `.env.example` to `.env.local` and set `RESEND_API_KEY` (from resend.com) to have quote requests emailed straight to `admin@dualnature.co.za`. Without it, the form opens the visitor's email app with everything filled in.
+
 ## Deploy
-Import this repo into Vercel — framework preset **Other**, no build command, output directory `.` (root).
+Import the repo into Vercel — it detects Next.js automatically. Add the env vars above in Project Settings if you want server-sent quote emails.
 
 ---
 
