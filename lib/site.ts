@@ -44,6 +44,8 @@ export function initSite(): () => void {
     menu.classList.toggle("open", open)
     menu.setAttribute("aria-hidden", String(!open))
     body.classList.toggle("locked", open)
+    if (open) window.__lenis?.stop()
+    else window.__lenis?.start()
     if (open) $("a", menu)?.focus({ preventScroll: true })
   }
   setMenu(false)
@@ -80,6 +82,36 @@ export function initSite(): () => void {
   }
   const words = $$(".w", quote || document.createElement("div"))
 
+  /* h2: words wrapped in masks; on reveal they rise line by line */
+  const splitH2 = (h: HTMLElement) => {
+    if (h.dataset.split) return
+    h.dataset.split = "1"
+    const walkW = (n: Node) => [...n.childNodes].forEach((c) => {
+      if (c.nodeType === 3) {
+        const f = document.createDocumentFragment()
+        ;(c.textContent || "").split(/(\s+)/).forEach((w) => {
+          if (!w) return
+          if (!w.trim()) { f.append(w); return }
+          const o = document.createElement("span"); o.className = "lw"
+          const i = document.createElement("span"); i.className = "lw-i"; i.textContent = w
+          o.append(i); f.append(o)
+        })
+        c.replaceWith(f)
+      } else if (c.nodeType === 1 && (c as Element).tagName !== "BR") walkW(c)
+    })
+    walkW(h)
+  }
+  const lineDelays = (h: HTMLElement) => {
+    let top = -1, line = -1
+    $$(".lw", h).forEach((w) => {
+      const t = Math.round(w.offsetTop)
+      if (Math.abs(t - top) > 4) { top = t; line++ }
+      w.style.setProperty("--d", line * 90 + "ms")
+    })
+  }
+  const h2s = reduced ? [] : $$(".h2")
+  h2s.forEach(splitH2)
+
   /* reveals + counters */
   const count = (el: HTMLElement) => {
     const end = +(el.dataset.count || 0)
@@ -90,11 +122,13 @@ export function initSite(): () => void {
   }
   const io = new IntersectionObserver((es) => es.forEach((e) => {
     if (!e.isIntersecting) return
+    if (e.target.matches(".h2[data-split]")) lineDelays(e.target as HTMLElement)
     e.target.classList.add("in")
     io.unobserve(e.target)
     $$("[data-count]", e.target).forEach(count)
   }), { rootMargin: "0px 0px -8% 0px", threshold: 0.08 })
-  $$(".reveal").forEach((el, i) => { el.style.transitionDelay = (i % 4) * 60 + "ms"; io.observe(el) })
+  $$(".reveal").forEach((el, i) => { if (!el.matches(".h2")) el.style.transitionDelay = (i % 4) * 60 + "ms"; io.observe(el) })
+  h2s.forEach((h) => io.observe(h))
   cleanups.push(() => io.disconnect())
 
   /* services track */
@@ -176,6 +210,31 @@ export function initSite(): () => void {
     on(el, "pointerleave", () => { el.style.transform = "" })
   })
 
+  /* magnetic primary buttons */
+  if (fine && !reduced) $$(".btn-solid").forEach((el) => {
+    on(el, "pointermove", (e: PointerEvent) => {
+      const r = el.getBoundingClientRect()
+      const dx = e.clientX - (r.left + r.width / 2), dy = e.clientY - (r.top + r.height / 2)
+      el.style.transform = `translate3d(${dx * 0.22}px,${dy * 0.3}px,0)`
+    })
+    on(el, "pointerleave", () => { el.style.transform = "" })
+  })
+
+  /* same-page anchors glide (Lenis when present, native smooth otherwise) */
+  on(document, "click", (e: MouseEvent) => {
+    const a = (e.target as Element).closest?.("a[href*='#']") as HTMLAnchorElement | null
+    if (!a || e.metaKey || e.ctrlKey || e.shiftKey) return
+    const url = new URL(a.href, location.href)
+    if (url.pathname !== location.pathname || !url.hash) return
+    const el = document.getElementById(decodeURIComponent(url.hash.slice(1)))
+    if (!el) return
+    e.preventDefault()
+    if (menu.classList.contains("open")) setMenu(false)
+    if (window.__lenis) window.__lenis.scrollTo(el, { offset: -84 })
+    else el.scrollIntoView({ behavior: reduced ? "auto" : "smooth" })
+    history.replaceState(null, "", url.hash)
+  })
+
   /* lightbox */
   const shots = $$("[data-lb]"), lb = $("#lb"), lbImg = $<HTMLImageElement>("#lbImg")
   if (lb && lbImg && shots.length) {
@@ -184,11 +243,11 @@ export function initSite(): () => void {
     const show = (i: number) => {
       li = (i + shots.length) % shots.length
       const img = $<HTMLImageElement>("img", shots[li])!
-      lbImg.src = img.currentSrc || img.src; lbImg.alt = img.alt
+      lbImg.src = shots[li].dataset.full || img.currentSrc || img.src; lbImg.alt = img.alt
       $("#lbCap")!.textContent = caption(shots[li]); $("#lbCount")!.textContent = `${li + 1} / ${shots.length}`
     }
-    const open = (i: number) => { lastFocus = document.activeElement as HTMLElement; show(i); lb.hidden = false; requestAnimationFrame(() => lb.classList.add("show")); body.classList.add("locked"); $("#lbClose")!.focus() }
-    const close = () => { lb.classList.remove("show"); body.classList.remove("locked"); setTimeout(() => (lb.hidden = true), 300); lastFocus?.focus({ preventScroll: true }) }
+    const open = (i: number) => { lastFocus = document.activeElement as HTMLElement; show(i); lb.hidden = false; requestAnimationFrame(() => lb.classList.add("show")); body.classList.add("locked"); window.__lenis?.stop(); $("#lbClose")!.focus() }
+    const close = () => { lb.classList.remove("show"); body.classList.remove("locked"); window.__lenis?.start(); setTimeout(() => (lb.hidden = true), 300); lastFocus?.focus({ preventScroll: true }) }
     shots.forEach((s, i) => on(s, "click", () => open(i)))
     on($("#lbClose")!, "click", close)
     on($("#lbPrev")!, "click", () => show(li - 1))
@@ -234,10 +293,12 @@ export function initSite(): () => void {
     lastY = y
 
     if (heroSeq && heroInner) {
-      const hp = mobile ? clamp(y / (vh * 0.9)) : clamp(-heroSeq.getBoundingClientRect().top / Math.max(1, heroSeq.offsetHeight - vh))
+      const hp = clamp(-heroSeq.getBoundingClientRect().top / Math.max(1, heroSeq.offsetHeight - vh))
       window.DNScene?.setProgress(hp)
-      if (!reduced) { heroInner.style.transform = `translate3d(0,${hp * -50}px,0)`; heroInner.style.opacity = String(1 - clamp((hp - 0.45) / 0.5)) }
-      if (heroState) { const p = hp > 0.45; heroState.textContent = p ? "STATE / PARTICLE" : "STATE / WAVE"; heroState.classList.toggle("particle", p) }
+      // the copy rises and clears first; the collapse only starts once it is gone
+      const tp = clamp(hp / 0.24)
+      if (!reduced) { heroInner.style.transform = `translate3d(0,${tp * tp * -64}px,0)`; heroInner.style.opacity = String(1 - tp); heroInner.style.visibility = tp >= 1 ? "hidden" : "" }
+      if (heroState) { const p = hp > 0.6; heroState.textContent = p ? "STATE / PARTICLE" : "STATE / WAVE"; heroState.classList.toggle("particle", p) }
     }
 
     if (words.length && quote) {

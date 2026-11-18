@@ -1,0 +1,156 @@
+/* ── Upgrade One: movement, centrepiece, new sections ─────────────────────────── */
+
+/* Lenis */
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+.lenis.lenis-smooth [data-lenis-prevent]{overscroll-behavior:contain}
+.lenis.lenis-stopped{overflow:hidden}
+
+/* film grain: one static tile, no blending, no animation */
+body::after{content:'';position:fixed;inset:0;z-index:350;pointer-events:none;opacity:.05;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .5  0 0 0 0 .5  0 0 0 0 .5  0 0 0 .9 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");background-size:180px 180px}
+[data-theme=light] body::after{opacity:.06}
+
+/* page transition wipe */
+.page-wipe{position:fixed;inset:0;z-index:450;background:var(--bg);pointer-events:none}
+.page-wipe::after{content:'';position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--grad)}
+
+/* h2 line-by-line mask reveal */
+.h2[data-split].reveal{opacity:1;transform:none}
+.h2[data-split] .lw{display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.12em;margin-bottom:-.12em}
+.h2[data-split] .lw-i{display:inline-block;transform:translateY(108%);transition:transform 1.05s var(--ease);transition-delay:var(--d,0ms)}
+.h2[data-split].in .lw-i{transform:none}
+
+/* magnetic buttons glide back */
+.btn-solid{will-change:transform}
+
+/* Live Current */
+.live-current{border-bottom:1px solid var(--line)}
+.live-current .btn-solid{min-height:48px}
+
+/* About: the finale already fades into the page, so no gap */
+.about-open{padding-top:clamp(48px,7vw,96px)}
+.proof-img{position:relative}
+
+/* ── Anatomy of an install ── */
+.anatomy{position:relative;height:520vh}
+.anatomy-pin{position:sticky;top:0;height:100svh;display:flex;flex-direction:column;justify-content:center;gap:clamp(18px,4vh,44px);padding-top:var(--hdr);overflow:hidden}
+.anatomy-grid{display:grid;grid-template-columns:1fr 1.12fr;gap:clamp(24px,5vw,80px);align-items:center}
+.anatomy-grid>*{min-width:0}
+.anatomy-copy .h2{max-width:14ch}
+.anatomy-copy .lead{margin-bottom:28px}
+.anatomy-now{border-top:1px solid var(--line);padding-top:20px;min-height:150px}
+.anatomy-now h3{font:500 clamp(1.4rem,2.2vw,1.9rem)/1.15 var(--display);letter-spacing:-.03em;margin:8px 0 8px}
+.anatomy-now p{color:var(--muted);max-width:46ch}
+.anatomy-photos{position:relative;aspect-ratio:4/3;max-height:58svh;width:100%;border-radius:20px;overflow:hidden;background:var(--card);border:1px solid var(--line)}
+.anatomy-photo{position:absolute;inset:0;opacity:0;transform:scale(1.05);transition:opacity .8s var(--ease),transform 1.4s var(--ease)}
+.anatomy-photo[data-on=true]{opacity:1;transform:none}
+.anatomy-count{position:absolute;right:16px;bottom:14px;z-index:1;color:#fff;font-size:10px;background:rgba(4,6,10,.55);padding:6px 10px;border-radius:999px;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.anatomy-track{position:relative;padding-bottom:34px}
+.track-line{position:relative;height:2px;background:var(--line2);border-radius:2px}
+.track-fill{position:absolute;inset:0;transform-origin:left;background:var(--grad);border-radius:2px}
+.track-flow{position:absolute;inset:-1px 0;opacity:.5;background:repeating-linear-gradient(90deg,transparent 0 22px,color-mix(in srgb,var(--fg) 55%,transparent) 22px 28px);background-size:200% 100%;animation:flow-run 2.2s linear infinite;-webkit-mask:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);mask:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
+@keyframes flow-run{to{background-position:56px 0}}
+.track-dot{position:absolute;top:50%;width:12px;height:12px;border-radius:50%;background:#fff;transform:translate(-50%,-50%);box-shadow:0 0 0 4px rgba(51,160,255,.22),0 0 22px rgba(51,160,255,.9);z-index:2}
+.track-nodes{list-style:none;position:relative;height:0}
+.track-nodes li{position:absolute;top:-6px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:12px}
+.track-nodes li:first-child{transform:translateX(-5px);align-items:flex-start}
+.track-nodes li:last-child{transform:translateX(calc(-100% + 5px));align-items:flex-end}
+.node{width:10px;height:10px;border-radius:50%;background:var(--bg);border:1.5px solid var(--line2);transition:background .4s,border-color .4s,box-shadow .4s}
+.track-nodes li[data-on=true] .node{border-color:var(--amber);background:var(--amber);box-shadow:0 0 12px rgba(255,126,34,.7)}
+.node-label{font:500 10px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--fine);white-space:nowrap;transition:color .4s}
+.track-nodes li[data-on=true] .node-label{color:var(--muted)}
+.anatomy-steps{display:none}
+
+/* ── Load-shedding simulator ── */
+.sim{margin:64px 0 0;padding:clamp(22px,3.4vw,48px);border-radius:24px;background:var(--card);border:1px solid var(--line)}
+.sim-head .kicker{margin-bottom:12px}
+.sim-title{font:500 clamp(1.6rem,3vw,2.4rem)/1.1 var(--display);letter-spacing:-.035em;margin-bottom:28px}
+.sim-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(24px,5vw,72px);align-items:start}
+.sim-grid>*{min-width:0}
+.sim-controls{display:flex;flex-direction:column;gap:22px}
+.sim-group{border:0;display:flex;flex-direction:column;gap:10px;min-width:0}
+.sim-group.pills{flex-direction:row;flex-wrap:wrap;gap:8px}
+.sim-label{font-size:13px;color:var(--muted)}
+.sim-group.pills legend{margin-bottom:10px}
+.pills span em{font-style:normal;color:var(--fine);margin-left:7px;font-size:11px}
+.pills input:checked+span em{color:inherit;opacity:.55}
+.seg-3{grid-template-columns:repeat(3,1fr)}
+.seg button[aria-checked=true]{background:var(--fg);color:var(--bg)}
+.sim-result{display:flex;flex-direction:column;gap:24px}
+.sim-big .mono{color:var(--fine);font-size:10px}
+.sim-big strong{display:block;font:500 clamp(3.4rem,7vw,6rem)/1 var(--display);letter-spacing:-.06em;font-variant-numeric:tabular-nums;margin-top:6px}
+.sim-big strong em{font-style:normal;font-size:.36em;color:var(--muted);letter-spacing:-.02em}
+.sim-bars{display:flex;flex-direction:column;gap:14px}
+.sim-bar{display:flex;flex-direction:column;gap:7px}
+.sim-bar .lbl{font-size:12px;color:var(--muted)}
+.sim-bar i{display:block;height:6px;border-radius:6px;transition:width .7s var(--ease);min-width:6px}
+.b-run{background:var(--grad)}
+.b-slot{background:var(--line2)}
+.b-day{background:color-mix(in srgb,var(--amber) 45%,transparent)}
+.sim-verdict{padding:18px 20px;border-radius:16px;border:1px solid var(--line);background:var(--bg)}
+.sim-verdict h4{font:500 1.15rem/1.25 var(--display);letter-spacing:-.02em;margin-bottom:6px}
+.sim-verdict p{font-size:14px;color:var(--muted)}
+.sim-verdict[data-tone=good] h4{color:var(--blue)}
+.sim-verdict[data-tone=short] h4{color:var(--amber)}
+.sim .fine{margin-top:24px}
+
+/* ── 404 ── */
+.lost{position:relative;min-height:100svh;display:flex;align-items:flex-end;overflow:hidden;padding-bottom:clamp(64px,12vh,140px)}
+.lost-canvas{position:absolute;inset:0;width:100%;height:100%}
+.lost-inner{position:relative;z-index:1}
+.lost-title{font:600 clamp(3.4rem,11vw,9rem)/.9 var(--display);letter-spacing:-.065em;margin-bottom:20px}
+.lost .lead{margin-bottom:32px}
+
+/* ── Phones ── */
+@media (max-width:760px){
+  /* the hero pins briefly on phones too, so the wave → particle story plays out in place */
+  .hero-seq{height:150svh}
+  .hero{position:sticky;top:0}
+
+  .anatomy{height:auto;padding:88px 0 48px}
+  .anatomy-pin{position:relative;height:auto;padding-top:0;display:block;overflow:visible}
+  .anatomy-photos,.anatomy-track,.anatomy-now{display:none}
+  .anatomy-steps{display:block;position:relative;list-style:none;margin:36px var(--gut) 0;padding-left:30px}
+  .anatomy-steps::before{content:'';position:absolute;left:5px;top:8px;bottom:8px;width:2px;background:var(--line2);border-radius:2px}
+  .steps-fill{position:absolute;left:5px;top:8px;bottom:8px;width:2px;transform-origin:top;background:linear-gradient(var(--blue),var(--violet),var(--amber));border-radius:2px}
+  .anatomy-steps li{position:relative;padding-bottom:40px;opacity:.4;transition:opacity .7s var(--ease)}
+  .anatomy-steps li.on{opacity:1}
+  .step-node{position:absolute;left:-30px;top:3px;width:12px;height:12px;border-radius:50%;background:var(--bg);border:2px solid var(--line2);transition:background .4s,border-color .4s}
+  .anatomy-steps li.on .step-node{border-color:var(--amber);background:var(--amber)}
+  .step-photo{position:relative;aspect-ratio:16/10;border-radius:14px;overflow:hidden;margin:0 0 14px;background:var(--card)}
+  .anatomy-steps h3{font:500 1.3rem/1.2 var(--display);letter-spacing:-.025em;margin:6px 0}
+  .anatomy-steps p{color:var(--muted);font-size:15px}
+
+  .sim{margin-top:40px;padding:18px;border-radius:20px}
+  .sim-grid{grid-template-columns:1fr;gap:28px}
+  .sim-title{margin-bottom:20px}
+  .seg-3 button{font-size:13px}
+
+  .lost{padding-bottom:110px}
+}
+@media (prefers-reduced-motion:reduce){
+  .track-flow{animation:none}
+  .h2[data-split] .lw-i{transform:none}
+}
+
+/* phone refinements */
+@media (max-width:760px){
+  .anatomy-grid{grid-template-columns:1fr}
+  .live-current .sh-content{padding-bottom:calc(104px + env(safe-area-inset-bottom,0px))}
+}
+/* hero without WebGL: a calm drawn wave */
+#scene[data-fallback]{opacity:.9}
+
+/* unlit words stay readable (3:1 for large text) */
+
+/* the wordmark rises on first paint (pure CSS, no wait for scripts) */
+.wordmark .ln>span{transform:none;animation:wm-rise 1.3s var(--ease) both}
+.wordmark .ln:nth-child(2)>span{animation-delay:.1s}
+@keyframes wm-rise{from{transform:translateY(105%)}to{transform:none}}
+.philo-quote .w{opacity:.5}
+.philo-quote em .w{opacity:.68}
+.philo-quote .w.on,.philo-quote em .w.on{opacity:1}
+@media (max-width:760px){
+  .steps button[aria-selected=true] i{color:inherit;opacity:.72}
+}
