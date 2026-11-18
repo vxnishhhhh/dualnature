@@ -46,7 +46,7 @@ app/
   api/quote/route.ts  # quote endpoint
   globals.css
 components/
-  ui/peak-chart.tsx              # Peak Chart (Louis Studios)
+  ui/peak-chart.tsx              # Peak Chart
   ui/perspective-tunnel-hero.tsx # tunnel hero (scroll-driven)
   solar-calculator.tsx · quote-form.tsx · hero-scene.tsx · site-chrome.tsx · site-effects.tsx
 lib/  hero-scene.ts · site.ts · utils.ts

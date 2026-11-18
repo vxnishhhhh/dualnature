@@ -1,7 +1,5 @@
 "use client"
 
-// Peak Chart by Louis Studios.
-// 200 more hand-made React components at https://studios.lou15.com/?ref=21st-code
 
 import * as React from "react"
 
