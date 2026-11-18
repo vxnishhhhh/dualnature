@@ -1,0 +1,16 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      next-and-react:
+        patterns: ["next", "react", "react-dom", "@types/react", "@types/react-dom"]
+      tooling:
+        patterns: ["typescript", "tailwindcss", "@tailwindcss/*", "@types/*"]
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly

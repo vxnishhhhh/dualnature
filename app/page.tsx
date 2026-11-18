@@ -1,4 +1,9 @@
 import Link from "next/link"
+import Image from "next/image"
+import PerspectiveTunnelHero, { type TunnelItem } from "@/components/ui/perspective-tunnel-hero"
+import { LiveCurrent } from "@/components/live-current"
+import { InstallAnatomy } from "@/components/install-anatomy"
+import { LoadSheddingSim } from "@/components/loadshedding-sim"
 import { SolarCalculator } from "@/components/solar-calculator"
 import { QuoteForm } from "@/components/quote-form"
 import { HeroScene } from "@/components/hero-scene"
@@ -50,6 +55,17 @@ const GALLERY = [
   ["three-tier-db.jpg", "Three-tier single-phase distribution board fully wired", "Single-Phase", "Three-tier DB", 620, 860],
 ] as const
 
+const WORK_TUNNEL: TunnelItem[] = [
+  { src: "/img/hybrid-volta-storage.jpg", title: "Hybrid · VOLTA storage", alt: "Hybrid inverter with dual VOLTA lithium batteries" },
+  { src: "/img/residential-rooftop.jpg", title: "Residential array", alt: "Residential rooftop solar installation" },
+  { src: "/img/combiner-boxes.jpg", title: "AC + DC combiners", alt: "DC and AC combiner boxes" },
+  { src: "/img/deye-battery-stack.jpg", title: "Deye · 4-battery stack", alt: "Deye inverter above a stacked lithium tower" },
+  { src: "/img/distribution-board.jpg", title: "Surge + RCD", alt: "Distribution board with surge protection" },
+  { src: "/img/three-tier-db.jpg", title: "Three-tier DB", alt: "Three-tier single-phase distribution board" },
+  { src: "/img/hybrid-volta-storage.jpg", title: "Installed & certified", alt: "Certified hybrid install" },
+  { src: "/img/residential-rooftop.jpg", title: "KwaZulu-Natal", alt: "Rooftop solar in KwaZulu-Natal" },
+]
+
 const STEPS = ["Load audit", "Engineering", "Installation", "Testing & CoC", "Maintenance"]
 
 export default function Home() {
@@ -83,6 +99,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* LIVE CURRENT — the 3D centrepiece */}
+      <LiveCurrent />
 
       {/* PHILOSOPHY */}
       <section className="sect philo" id="philosophy">
@@ -127,7 +146,7 @@ export default function Home() {
       <section className="energy-seq" id="energy">
         <div className="energy-pin">
           <div className="energy-head wrap">
-            <p className="kicker"><span className="sq" />Pillar I · Energy &amp; Infrastructure</p>
+            <p className="kicker"><span className="sq" />Pillar I · Energy &amp; Infrastructure · Durban &amp; KZN</p>
             <h2 className="h2">Our core business.</h2>
             <p className="lead">End-to-end electrical, solar, security, and connectivity — engineered for reliability, scalability, and modern integration.</p>
           </div>
@@ -151,6 +170,9 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ANATOMY */}
+      <InstallAnatomy />
+
       {/* SOLAR ROI */}
       <section className="sect solar" id="solar">
         <div className="wrap">
@@ -161,6 +183,8 @@ export default function Home() {
           </p>
           <SolarCalculator />
           <p className="fine">Illustrative only: assumes ~R3.10/kWh grid rate escalating ~12% a year, 0.5%/yr panel degradation, and an indicative system cost sized to your bill. Figures are typical South African ranges as at mid-2026 and depend on system size, consumption, self-consumption ratio, and tariff. Eskom SSEG fixed charges and registration requirements affect net returns. Exact payback is quoted per site after a load audit. Not financial advice.</p>
+
+          <LoadSheddingSim />
 
           <div className="payback">
             <div className="pb reveal"><strong>5–7 yrs</strong><span>Typical residential payback</span></div>
@@ -176,16 +200,34 @@ export default function Home() {
         </div>
       </section>
 
+      {/* TUNNEL INTO THE WORK */}
+      <PerspectiveTunnelHero
+        id="installs"
+        images={WORK_TUNNEL}
+        titleAs="h2"
+        eyebrow="Proof of work"
+        title={<>INSIDE 20+<br />INSTALLS.</>}
+        subtitle="Real systems, our own work — certified solar across KwaZulu-Natal."
+        prompt="Scroll through the installs"
+        length={3}
+        finale={{
+          src: "/img/flagship-logistics-rooftop.jpg",
+          alt: "Flagship commercial rooftop solar array over a logistics yard in KwaZulu-Natal",
+          dim: 0.25,
+          caption: <>Flagship · Commercial 3-phase<br />Logistics rooftop array</>,
+        }}
+      />
+
       {/* WORK */}
       <section className="sect work" id="work">
         <div className="wrap">
-          <p className="kicker reveal"><span className="sq" />Proof of Work · Solar Installations</p>
+          <p className="kicker reveal"><span className="sq" />Proof of Work · Solar installations in KwaZulu-Natal</p>
           <h2 className="h2 reveal">20+ systems installed. Residential to commercial.</h2>
           <p className="lead reveal">A growing track record of certified solar across KwaZulu-Natal — from single-home hybrids to full 3-phase commercial off-grid transitions. Below: real installs, our own work.</p>
 
           <figure className="flagship reveal">
-            <button className="shot" type="button" data-lb aria-label="Enlarge: Logistics rooftop array">
-              <img src="/img/flagship-logistics-rooftop.jpg" alt="Aerial view of a flagship commercial rooftop solar array over a logistics yard in KwaZulu-Natal" width={1280} height={708} loading="lazy" decoding="async" />
+            <button className="shot" type="button" data-lb data-full="/img/flagship-logistics-rooftop.jpg" aria-label="Enlarge: Logistics rooftop array">
+              <Image src="/img/flagship-logistics-rooftop.jpg" alt="Aerial view of a flagship commercial rooftop solar array over a logistics yard in KwaZulu-Natal" width={1280} height={708} sizes="(max-width:760px) 92vw, 60vw" />
             </button>
             <figcaption>
               <span className="mono amber">Flagship · Commercial 3-Phase</span>
@@ -201,8 +243,8 @@ export default function Home() {
           </figure>
 
           <figure className="resi reveal">
-            <button className="shot" type="button" data-lb aria-label="Enlarge: Residential rooftop array">
-              <img src="/img/residential-rooftop.jpg" alt="Aerial view of a residential rooftop solar installation across a tiled roof" width={1280} height={708} loading="lazy" decoding="async" />
+            <button className="shot" type="button" data-lb data-full="/img/residential-rooftop.jpg" aria-label="Enlarge: Residential rooftop array">
+              <Image src="/img/residential-rooftop.jpg" alt="Aerial view of a residential rooftop solar installation across a tiled roof" width={1280} height={708} sizes="(max-width:760px) 92vw, 60vw" />
             </button>
             <figcaption><span className="mono blue">Residential</span><h3>Rooftop array</h3><p>One of 20+ certified solar installs across KwaZulu-Natal.</p></figcaption>
           </figure>
@@ -210,8 +252,8 @@ export default function Home() {
           <p className="subhead reveal"><span className="dash" />Inside the install — installed &amp; certified</p>
           <div className="gallery" id="gallery">
             {GALLERY.map(([f, alt, k, cap, w, h]) => (
-              <button key={f} className="g-item shot reveal" type="button" data-lb data-cap={cap}>
-                <img src={`/img/${f}`} alt={alt} width={w} height={h} loading="lazy" decoding="async" />
+              <button key={f} className="g-item shot reveal" type="button" data-lb data-cap={cap} data-full={`/img/${f}`}>
+                <Image src={`/img/${f}`} alt={alt} width={w} height={h} sizes="(max-width:760px) 74vw, (max-width:1280px) 33vw, 420px" />
                 <span className="g-cap"><i className="mono">{k}</i>{cap}</span>
               </button>
             ))}

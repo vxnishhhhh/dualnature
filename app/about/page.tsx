@@ -1,24 +1,40 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import PerspectiveTunnelHero, { type TunnelImage } from "@/components/ui/perspective-tunnel-hero"
+import Image from "next/image"
+import { headers } from "next/headers"
+import PerspectiveTunnelHero, { type TunnelItem } from "@/components/ui/perspective-tunnel-hero"
 
 export const metadata: Metadata = {
-  title: "About",
+  title: "About — a hybrid technology company in KwaZulu-Natal",
+  alternates: { canonical: "/about" },
+  openGraph: { url: "/about", title: "About Dual Nature", description: "Certified solar and smart infrastructure on one side, precision 3D-fabricated engineering on the other." },
   description:
     "Dual Nature is a KwaZulu-Natal hybrid technology company: certified solar and smart infrastructure on one side, precision 3D-fabricated engineering on the other. 20+ systems, 120 kW+, 100% CoC.",
 }
 
-const TUNNEL: TunnelImage[] = [
-  { src: "/img/flagship-logistics-rooftop.jpg", title: "Logistics · 3-phase", alt: "Commercial rooftop solar array over a logistics yard" },
+const TUNNEL: TunnelItem[] = [
+  { kind: "fact", big: "20+", title: "Solar systems installed to date", tone: "blue" },
   { src: "/img/hybrid-volta-storage.jpg", title: "Hybrid · VOLTA storage", alt: "Hybrid inverter with dual VOLTA lithium batteries" },
-  { src: "/img/residential-rooftop.jpg", title: "Residential array", alt: "Residential rooftop solar installation" },
+  { kind: "fact", big: "120 kW+", title: "Total solar installed", tone: "fg" },
+  { kind: "art", art: "aero", title: "BMW E46 front lip" },
+  { kind: "fact", big: "100%", title: "Installs signed off with a CoC", tone: "amber" },
+  { kind: "fact", big: "3-phase", title: "Commercial off-grid transitions", tone: "fg" },
+  { kind: "art", art: "gauge", title: "Precision feeler gauges" },
+  { kind: "fact", big: "200+", title: "Panels on roofs across KZN", tone: "blue" },
+  { kind: "fact", big: "Sonoff", title: "+ Home Assistant smart homes", tone: "fg" },
   { src: "/img/deye-battery-stack.jpg", title: "Deye · 4-battery stack", alt: "Deye inverter above a stacked lithium tower" },
-  { src: "/img/combiner-boxes.jpg", title: "AC + DC combiners", alt: "DC and AC combiner boxes" },
-  { src: "/img/distribution-board.jpg", title: "Surge + RCD", alt: "Distribution board with surge protection" },
-  { src: "/img/three-tier-db.jpg", title: "Three-tier DB", alt: "Three-tier single-phase distribution board" },
-  { src: "/img/flagship-logistics-rooftop.jpg", title: "12 × 630 W", alt: "Commercial rooftop solar array" },
-  { src: "/img/hybrid-volta-storage.jpg", title: "CoC certified", alt: "Certified hybrid install" },
+  { kind: "art", art: "booth", title: "360° camera spin booth" },
+  { kind: "fact", big: "ABS · PETG", title: "PLA · Carbon-fibre blend · TPU", tone: "amber" },
 ]
+
+const BREADCRUMBS = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Home", item: "https://www.dualnature.co.za/" },
+    { "@type": "ListItem", position: 2, name: "About", item: "https://www.dualnature.co.za/about" },
+  ],
+}
 
 const LEDGER = [
   ["20+", "Solar systems installed"],
@@ -52,22 +68,29 @@ const THESES = [
   },
 ]
 
-export default function About() {
+export default async function About() {
+  const nonce = (await headers()).get("x-nonce") ?? undefined
   return (
     <>
+      <script type="application/ld+json" nonce={nonce} dangerouslySetInnerHTML={{ __html: JSON.stringify(BREADCRUMBS) }} />
       <PerspectiveTunnelHero
         images={TUNNEL}
         eyebrow="About Dual Nature"
         title={<>BOTH,<br />AT ONCE.</>}
         subtitle="Energy and engineering. Wave and particle. One company built to do both — properly."
+        length={4.2}
+        finale={{
+          src: "/img/residential-rooftop.jpg",
+          alt: "Rooftop solar array installed by Dual Nature in KwaZulu-Natal",
+          dim: 0.62,
+          eyebrow: "Who we are",
+          lines: ["Most companies", "pick a lane.", <span key="d" className="text-white/55">Dual Nature was</span>, <span key="e" className="text-white/55">built on two.</span>],
+        }}
       />
 
       <section className="sect about-open">
         <div className="wrap">
-          <p className="kicker reveal"><span className="sq" />Who we are</p>
-          <p className="manifesto reveal">
-            Most companies pick a lane. <span className="dim">Dual Nature was built on two.</span>
-          </p>
+          <h2 className="sr-only">Who we are</h2>
           <div className="about-cols">
             <p className="reveal">
               In quantum mechanics, light is both a wave and a particle. Dual Nature (Pty) Ltd was founded on the same principle: dynamic versatility.
@@ -114,7 +137,7 @@ export default function About() {
       <section className="sect proof">
         <div className="wrap proof-grid">
           <figure className="proof-img reveal">
-            <img src="/img/flagship-logistics-rooftop.jpg" alt="Flagship commercial rooftop array over a logistics yard" width={1280} height={708} loading="lazy" decoding="async" />
+            <Image src="/img/flagship-logistics-rooftop.jpg" alt="Flagship commercial rooftop array over a logistics yard" fill sizes="(max-width:760px) 92vw, 55vw" className="object-cover" />
           </figure>
           <div>
             <p className="kicker reveal"><span className="sq amber-bg" />The flagship</p>

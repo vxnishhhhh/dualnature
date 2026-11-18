@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { track } from "@vercel/analytics"
 
 const SERVICES = [
   ["Solar", "Solar"],
@@ -17,6 +18,10 @@ type Status = { kind: "idle" | "sending" | "sent" | "error" | "mailto"; msg?: st
 export function QuoteForm() {
   const [status, setStatus] = React.useState<Status>({ kind: "idle" })
   const nameRef = React.useRef<HTMLInputElement>(null)
+  const startedAt = React.useRef(0)
+  React.useEffect(() => {
+    startedAt.current = Date.now()
+  }, [])
 
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -29,6 +34,7 @@ export function QuoteForm() {
       services: f.getAll("svc").map(String),
       message: String(f.get("msg") || ""),
       company_site: String(f.get("company_site") || ""),
+      elapsed: Math.max(0, Date.now() - startedAt.current),
     }
     if (payload.name.length < 2) {
       setStatus({ kind: "error", msg: "Please add your name so we know who to reply to." })
@@ -44,6 +50,7 @@ export function QuoteForm() {
       const r = await fetch("/api/quote", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) })
       const j = await r.json().catch(() => ({}))
       if (r.ok && j.ok) {
+        track("Quote submitted", { via: "email", property: payload.type })
         setStatus({ kind: "sent" })
         ;(e.target as HTMLFormElement).reset()
         return
@@ -51,6 +58,7 @@ export function QuoteForm() {
       if (j.fallback === "mailto") {
         const svcs = payload.services.join(", ") || "General enquiry"
         const body = `Name: ${payload.name}\nPhone: ${payload.phone}\nEmail: ${payload.email}\nProperty: ${payload.type}\nInterested in: ${svcs}\n\n${payload.message}`
+        track("Quote submitted", { via: "mailto", property: payload.type })
         window.location.href = `mailto:admin@dualnature.co.za?subject=${encodeURIComponent("Quote request — " + svcs)}&body=${encodeURIComponent(body)}`
         setStatus({ kind: "mailto" })
         return
@@ -82,7 +90,7 @@ export function QuoteForm() {
           <label key={v}><input type="checkbox" name="svc" value={v} defaultChecked={v === "Solar"} /><span>{l}</span></label>
         ))}
       </fieldset>
-      <label className="inp"><span>Name</span><input ref={nameRef} name="name" autoComplete="name" required aria-invalid={status.kind === "error" && !nameRef.current?.value ? true : undefined} /></label>
+      <label className="inp"><span>Name</span><input ref={nameRef} name="name" autoComplete="name" required /></label>
       <div className="inp-row">
         <label className="inp"><span>Phone</span><input name="phone" type="tel" inputMode="tel" autoComplete="tel" /></label>
         <label className="inp"><span>Email</span><input name="email" type="email" inputMode="email" autoComplete="email" /></label>
